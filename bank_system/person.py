@@ -56,7 +56,7 @@ class Employee(Person):
             self, first_name, last_name,
             address, employee_id, title, salary) -> None:
         super().__init__(self, first_name, last_name, address)
-        self.employee_id = employee_id
+        self._employee_id = employee_id
         self.title = title
         self.salary = salary
         logging.info("Employee initializer...")
@@ -66,6 +66,16 @@ class Employee(Person):
         return f"--Employee--\n{self.title}\n{super().__str__()}"
 
     @property
+    def employee_id(self):
+        return self._employee_id
+
+    @employee_id.setter
+    def employee_id(self, id):
+        "Cannot overwrite employee id if already set."
+        if self._employee_id is None:
+            self._employee_id = id
+
+    @property
     def data_dict(self) -> dict:
         """Dictionary representation of the Employee for data passing purposes.
 
@@ -73,7 +83,7 @@ class Employee(Person):
             Dict of variable names and data.
         """
         data = super().data_dict
-        data["employee_id"] = self.employee_id
+        data["employee_id"] = self._employee_id
         data["title"] = self.title
         data["salary"] = self.salary
         return data
@@ -95,7 +105,7 @@ class Customer(Person):
     def __init__(self, first_name, last_name, address, customer_id,
                  accounts=None, services=None) -> None:
         super().__init__(self, first_name, last_name, address)
-        self.customer_id = customer_id
+        self._customer_id = customer_id
         self.accounts = accounts
         self.services = services
         logging.info("Customer initializer...")
@@ -103,6 +113,16 @@ class Customer(Person):
 
     def __str__(self) -> str:
         return f"--Customer--\n{super().__str__()}"
+
+    @property
+    def customer_id(self) -> int:
+        return self._customer_id
+
+    @customer_id.setter
+    def customer_id(self, id):
+        "Cannot overwrite customer id if already set."
+        if self._customer_id is None:
+            self._customer_id = id
 
     @property
     def data_dict(self) -> dict:

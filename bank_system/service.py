@@ -27,6 +27,16 @@ class Service():
         logging.info("Service initializer...")
         logging.debug("Data: " + str(self.data_dict))
 
+    @property
+    def customer_id(self):
+        return self._customer_id
+
+    @customer_id.setter
+    def customer_id(self, id):
+        "Cannot overwrite customer id if already set."
+        if self._customer_id is None:
+            self._customer_id = id
+
 
 class Loan(Service):
     """Represents loan service of the bank system.

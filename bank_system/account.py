@@ -23,13 +23,45 @@ class Account:
             created_at: Timestamp of when item was added
             to DB as datetime.date.
         """
-        self.account_type = account_type
-        self.account_id = account_id
-        self.customer_id = customer_id
-        self.balance = balance
-        self.created_at = created_at
+        self._account_type = account_type
+        self._account_id = account_id
+        self._customer_id = customer_id
+        self._balance = balance
+        self._created_at = created_at
         logging.info("Account initializer...")
         logging.debug("Data: " + str(self.data_dict))
+
+    @property
+    def created_at(self):
+        return self._created_at
+
+    @property
+    def balance(self):
+        return self._balance
+
+    @property
+    def account_type(self):
+        return self._account_type
+
+    @property
+    def account_id(self):
+        return self._account_id
+
+    @account_id.setter
+    def account_id(self, id):
+        "Cannot overwrite account id if already set."
+        if self._account_id is None:
+            self._account_id = id
+
+    @property
+    def customer_id(self):
+        return self._customer_id
+
+    @customer_id.setter
+    def customer_id(self, id):
+        "Cannot overwrite customer id if already set."
+        if self._customer_id is None:
+            self._customer_id = id
 
     @property
     def data_dict(self) -> dict:
