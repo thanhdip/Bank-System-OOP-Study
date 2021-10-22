@@ -1,3 +1,4 @@
+import datetime
 import logging
 
 
@@ -9,7 +10,7 @@ class Account:
         balance: Amount of money in the account as float.
         account_id: Distinct account id as int.
         customer_id: ID of owner of the account as int.
-        created_at: Time created at as datetime.date.
+        created_at: Time created at as datetime.datetime.
     """
 
     def __init__(self, account_type, balance, account_id=None,
@@ -21,7 +22,7 @@ class Account:
             balance: Amount of money in account as float.
             account_id: Distinct ID from DB as int.
             created_at: Timestamp of when item was added
-            to DB as datetime.date.
+            to DB as datetime.datetime.
         """
         self._account_type = account_type
         self._account_id = account_id
@@ -32,7 +33,7 @@ class Account:
         logging.debug("Data: " + str(self.data_dict))
 
     @property
-    def created_at(self):
+    def created_at(self) -> datetime.datetime:
         return self._created_at
 
     @property
@@ -73,7 +74,8 @@ class Account:
         return {"account_type": self.account_type,
                 "account_id": self.account_id,
                 "customer_id": self.customer_id,
-                "balance": self.balance}
+                "balance": self.balance,
+                "created_at": self.created_at}
 
     def withdraw(self, amount) -> float:
         """Withdraw amount from account.
@@ -85,10 +87,10 @@ class Account:
             OverdraftError when withdrawing over balance.
         """
         if(amount <= self.balance):
-            self.balance -= amount
+            self._balance -= amount
         else:
             raise OverdraftError
-        return self.balance
+        return self._balance
 
     def deposit(self, amount) -> int:
         """Deposit amount to account.
@@ -96,8 +98,8 @@ class Account:
         Returns:
             Balance of the account after deposit as float.
         """
-        self.balance += amount
-        return self.balance
+        self._balance += amount
+        return self._balance
 
 
 class Savings(Account):
@@ -108,16 +110,16 @@ class Savings(Account):
         balance: Amount of money in the account as float.
         account_id: Distinct account id as int.
         customer_id: ID of owner of the account as int.
-        created_at: Time created at as datetime.date.
+        created_at: Time created at as datetime.datetime.
         savings_rate: Rate savings increase as float.
     """
 
     def __init__(self, balance, savings_rate=.01, account_id=None,
                  customer_id=None, created_at=None) -> None:
+        self.savings_rate = savings_rate
         super().__init__(
             self.__class__.__name__, balance, account_id=account_id,
             customer_id=customer_id, created_at=created_at)
-        self.saving_rate = savings_rate
         logging.info("Savings initializer...")
         logging.debug("Data: " + str(self.data_dict))
 
@@ -130,7 +132,7 @@ class Savings(Account):
             Dict of variable names and data.
         """
         data = super().data_dict
-        data["savings_rate"] = self.saving_rate
+        data["savings_rate"] = self.savings_rate
         return data
 
 
@@ -142,15 +144,16 @@ class Checking(Account):
         balance: Amount of money in the account as float.
         account_id: Distinct account id as int.
         customer_id: ID of owner of the account as int.
-        created_at: Time created at as datetime.date.
+        created_at: Time created at as datetime.datetime.
         min_balance: Minimum allowed balance as int.
     """
 
-    def __init__(self, account_type, balance, account_id=None,
+    def __init__(self,  balance, account_id=None,
                  customer_id=None, created_at=None, min_balance=None) -> None:
-        super().__init__(account_type, balance, account_id=account_id,
-                         customer_id=customer_id, created_at=created_at)
         self.min_balance = min_balance
+        super().__init__(
+            self.__class__.__name__, balance, account_id=account_id,
+            customer_id=customer_id, created_at=created_at)
         logging.info("Checking initializer...")
         logging.debug("Data: " + str(self.data_dict))
 

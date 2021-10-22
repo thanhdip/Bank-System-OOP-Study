@@ -5,22 +5,28 @@ class Service():
     """Represents services of the bank system.
 
     Attributes:
+        borrowed_amount: Amount borrowed as float.
+        interest_rate: Interest rate of money borrowed as float.
         service_type: Type of service as string.
         service_id: Distinct id of service as int.
         customer_id: Customer who has the service as int.
         created_at: Time service was created at datetime.date.
     """
 
-    def __init__(self, service_type, service_id, customer_id=None,
-                 created_at=None) -> None:
+    def __init__(self, borrowed_amount, interest_rate, service_type,
+                 service_id, customer_id=None, created_at=None) -> None:
         """Service initialize Service.
 
         Args:
+            loan_amount: Amount borrowed as float.
+            interest_rate: Interest rate of money borrowed as float.
             service_type: Type of service.
             service_id: Distinct ID from the database.
             customer_id: Distinct ID of user.
         """
-        self._service_type = service_type
+        self.service_type = service_type
+        self.borrowed_amount = borrowed_amount
+        self.interest_rate = interest_rate
         self._service_id = service_id
         self._customer_id = customer_id
         self._created_at = created_at
@@ -37,6 +43,22 @@ class Service():
         if self._customer_id is None:
             self._customer_id = id
 
+    @property
+    def data_dict(self) -> dict:
+        """Dictionary representation of the service for data passing purposes.
+
+        Returns:
+            Dict of variable names and data.
+        """
+        return {
+            "service_type": self.service_type,
+            "service_id": self._service_id,
+            "customer_id": self._customer_id,
+            "created_at": self._created_at,
+            "interest_rate": self.interest_rate,
+            "borrowed_amount": self.borrowed_amount
+        }
+
 
 class Loan(Service):
     """Represents loan service of the bank system.
@@ -47,19 +69,22 @@ class Loan(Service):
         customer_id: Customer who has the service as int.
         created_at: Time service was created at as datetime.date.
         interest_rate: Interest rate of loan as float.
-        loan_amount: Amount loaned as float.
+        borrowed_amount: Amount loaned as float.
         payed: Amount already payed as float.
         term: Time of loan in years as float.
+
+    Raises:
+        OverpayedError when over paying on loan.
     """
 
-    def __init__(self, loan_amount=None, interest_rate=None, term=2,  payed=0,
-                 service_id=None, customer_id=None,) -> None:
-        super().__init__(self.__class__.__name__, service_id,
-                         customer_id=customer_id)
-        self.interest_rate = interest_rate
-        self.loan_amount = loan_amount
+    def __init__(
+            self, borrowed_amount, interest_rate, term=2, payed=0,
+            service_id=None, customer_id=None, created_at=None) -> None:
         self.term = term
         self.payed = payed
+        super().__init__(
+            borrowed_amount, interest_rate, self.__class__.__name__,
+            service_id, customer_id, created_at)
         logging.info("Loan initializer...")
         logging.debug("Data: " + str(self.data_dict))
 
@@ -70,6 +95,38 @@ class Loan(Service):
         @property
         def monthly_payment(self) -> int:
             return self.total_interest / (self.term * 12)
+
+    @property
+    def data_dict(self) -> dict:
+        """Dictionary representation of the Loan for data passing purposes.
+
+        Returns:
+            Dict of variable names and data.
+        """
+        data = super().data_dict
+        data["term"] = self.term
+        data["payed"] = self.payed
+        return data
+
+    @property
+    def loan_left(self) -> float:
+        return self.borrowed_amount + (
+            self.borrowed_amount * self.interest_rate) - self.payed
+
+    def pay(self, amount) -> float:
+        """Pays off loan by an amount.
+
+        Args:
+            amount: amount to off loan by.
+
+        Raises:
+            OverpayedError when trying to overpay loan.
+        """
+        if self.loan_left - amount >= 0:
+            self.payed += amount
+        else:
+            raise OverpayedError
+        return self.loan_left
 
 
 class CreditCard(Service):
@@ -85,16 +142,59 @@ class CreditCard(Service):
         annual_fee: Annual fee if any as int.
     """
 
-    def __init__(self, max_limit=None, interest_rate=None, annual_fee=90,
-                 service_id=None, customer_id=None,
-                 ) -> None:
-        super().__init__(self.__class__.__name__, service_id,
-                         customer_id=customer_id)
-        self.interest_rate = interest_rate
+    def __init__(self, borrowed_amount, interest_rate, max_limit=None,
+                 annual_fee=90, service_id=None, customer_id=None,
+                 created_at=None) -> None:
         self.max_limit = max_limit
         self.annual_fee = annual_fee
+        super().__init__(
+            borrowed_amount, interest_rate, self.__class__.__name__,
+            service_id, customer_id, created_at)
         logging.info("Credit card initializer...")
         logging.debug("Data: " + str(self.data_dict))
+
+    @property
+    def data_dict(self) -> dict:
+        """Dictionary representation of the Credit for data passing purposes.
+
+        Returns:
+            Dict of variable names and data.
+        """
+        data = super().data_dict
+        data["max_limit"] = self.max_limit
+        data["annual_fee"] = self.annual_fee
+        return data
+
+    @property
+    def interest(self) -> dict:
+        "Amount of interest to be payed."
+        return self.borrowed_amount * self.interest_rate
+
+    def pay(self, amount) -> int:
+        """Pay off credit card bill. Can go over to be used later.
+
+        Args:
+            amount: Amount to pay off.
+
+        Returns:
+            Amount borrowed.
+        """
+        self.borrowed_amount -= amount
+        return self.borrowed_amount
+
+    def borrow(self, amount) -> int:
+        """Borrow from credit.
+
+        Args:
+            amount: Amount to pay off.
+
+        Returns:
+            Amount borrowed.
+        """
+        if self.borrowed_amount + amount > self.max_limit:
+            raise CreditLimitError(self.max_limit)
+        self.borrowed_amount += amount
+        return self.borrowed_amount
 
 
 class CreditLimitError(Exception):
@@ -109,3 +209,12 @@ class CreditLimitError(Exception):
                  message="Credit limit reached. Trying to go over: "):
         super().__init__(message + str(credit_limit))
         logging.error("Credit limit reached!")
+
+
+class OverpayedError(Exception):
+    """Exception raised when overpaying a loan.
+    """
+
+    def __init__(self):
+        super().__init__("Overpaying loan!")
+        logging.error("Loan overpyaing!")
