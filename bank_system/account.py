@@ -13,8 +13,8 @@ class Account:
         created_at: Time created at as datetime.datetime.
     """
 
-    def __init__(self, account_type, balance, account_id=None,
-                 customer_id=None, created_at=None) -> None:
+    def __init__(self, account_type, balance, customer_id, account_id=None,
+                 created_at=None) -> None:
         """Initialize account
 
         Args:
@@ -114,8 +114,9 @@ class Savings(Account):
         savings_rate: Rate savings increase as float.
     """
 
-    def __init__(self, balance, savings_rate=.01, account_id=None,
-                 customer_id=None, created_at=None) -> None:
+    def __init__(
+            self, balance, customer_id, savings_rate=.01, account_id=None,
+            created_at=None) -> None:
         self.savings_rate = savings_rate
         super().__init__(
             self.__class__.__name__, balance, account_id=account_id,
@@ -148,8 +149,8 @@ class Checking(Account):
         min_balance: Minimum allowed balance as int.
     """
 
-    def __init__(self,  balance, account_id=None,
-                 customer_id=None, created_at=None, min_balance=None) -> None:
+    def __init__(self,  balance,  min_balance, customer_id, account_id=None,
+                 created_at=None) -> None:
         self.min_balance = min_balance
         super().__init__(
             self.__class__.__name__, balance, account_id=account_id,

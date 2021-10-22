@@ -57,8 +57,8 @@ class Employee(Person):
     """
 
     def __init__(
-            self, first_name, last_name,
-            address, employee_id, title, salary, created_at=None) -> None:
+            self, first_name, last_name, address, title, salary,
+            employee_id=None, created_at=None) -> None:
         self._employee_id = employee_id
         self.title = title
         self.salary = salary
@@ -107,8 +107,8 @@ class Customer(Person):
         created_at: Time created at as datetime.datetime.
     """
 
-    def __init__(self, first_name, last_name, address, customer_id, created_at,
-                 accounts=None, services=None) -> None:
+    def __init__(self, first_name, last_name, address, created_at,
+                 customer_id=None, accounts=[], services=[]) -> None:
         self._customer_id = customer_id
         self.accounts = accounts
         self.services = services

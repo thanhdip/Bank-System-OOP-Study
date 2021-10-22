@@ -30,10 +30,10 @@ def loan_obj():
     return service.Loan(
         loan1["borrowed_amount"],
         loan1["interest_rate"],
+        loan1["customer_id"],
         loan1["term"],
         loan1["payed"],
         loan1["service_id"],
-        loan1["customer_id"],
         loan1["created_at"],
     )
 
@@ -43,10 +43,10 @@ def credit_obj():
     return service.CreditCard(
         credit1["borrowed_amount"],
         credit1["interest_rate"],
+        credit1["customer_id"],
         credit1["max_limit"],
         credit1["annual_fee"],
         credit1["service_id"],
-        credit1["customer_id"],
         credit1["created_at"],
     )
 

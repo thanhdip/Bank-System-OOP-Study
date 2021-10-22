@@ -29,9 +29,9 @@ def employee_obj():
         employee1["first_name"],
         employee1["last_name"],
         employee1["address"],
-        employee1["employee_id"],
         employee1["title"],
         employee1["salary"],
+        employee1["employee_id"],
         employee1["created_at"],
     )
 
@@ -42,8 +42,8 @@ def customer_obj():
         customer1["first_name"],
         customer1["last_name"],
         customer1["address"],
-        customer1["customer_id"],
         customer1["created_at"],
+        customer1["customer_id"],
         customer1["accounts"],
         customer1["services"],
     )

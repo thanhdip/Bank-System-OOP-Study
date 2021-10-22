@@ -25,9 +25,9 @@ checking1 = {
 def savings_obj() -> account.Savings:
     return account.Savings(
         savings1["balance"],
+        savings1["customer_id"],
         savings1["savings_rate"],
         savings1["account_id"],
-        savings1["customer_id"],
         savings1["created_at"]
     )
 
@@ -36,10 +36,10 @@ def savings_obj() -> account.Savings:
 def checking_obj() -> account.Checking:
     return account.Checking(
         checking1["balance"],
-        checking1["account_id"],
-        checking1["customer_id"],
-        checking1["created_at"],
         checking1["min_balance"],
+        checking1["customer_id"],
+        checking1["account_id"],
+        checking1["created_at"],
     )
 
 

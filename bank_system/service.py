@@ -14,7 +14,7 @@ class Service():
     """
 
     def __init__(self, borrowed_amount, interest_rate, service_type,
-                 service_id, customer_id=None, created_at=None) -> None:
+                 service_id, customer_id, created_at=None) -> None:
         """Service initialize Service.
 
         Args:
@@ -78,8 +78,8 @@ class Loan(Service):
     """
 
     def __init__(
-            self, borrowed_amount, interest_rate, term=2, payed=0,
-            service_id=None, customer_id=None, created_at=None) -> None:
+            self, borrowed_amount, interest_rate, customer_id, term=2, payed=0,
+            service_id=None, created_at=None) -> None:
         self.term = term
         self.payed = payed
         super().__init__(
@@ -142,8 +142,8 @@ class CreditCard(Service):
         annual_fee: Annual fee if any as int.
     """
 
-    def __init__(self, borrowed_amount, interest_rate, max_limit=None,
-                 annual_fee=90, service_id=None, customer_id=None,
+    def __init__(self, borrowed_amount, interest_rate, customer_id,
+                 max_limit=None, annual_fee=90, service_id=None,
                  created_at=None) -> None:
         self.max_limit = max_limit
         self.annual_fee = annual_fee
