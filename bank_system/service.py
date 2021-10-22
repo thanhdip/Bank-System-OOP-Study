@@ -1,3 +1,6 @@
+import logging
+
+
 class Service():
     """Represents services of the bank system.
 
@@ -10,10 +13,19 @@ class Service():
 
     def __init__(self, service_type, service_id, customer_id=None,
                  created_at=None) -> None:
+        """Service initialize Service.
+
+        Args:
+            service_type: Type of service.
+            service_id: Distinct ID from the database.
+            customer_id: Distinct ID of user.
+        """
         self._service_type = service_type
         self._service_id = service_id
         self._customer_id = customer_id
         self._created_at = created_at
+        logging.info("Service initializer...")
+        logging.debug("Data: " + str(self.data_dict))
 
 
 class Loan(Service):
@@ -30,14 +42,16 @@ class Loan(Service):
         term: Time of loan in years as float.
     """
 
-    def __init__(
-            self, service_type, service_id, customer_id=None,
-            interest_rate=None, loan_amount=None, payed=None,
-            term=None) -> None:
-        super().__init__(service_type, service_id, customer_id=customer_id)
+    def __init__(self, loan_amount=None, interest_rate=None, term=2,  payed=0,
+                 service_id=None, customer_id=None,) -> None:
+        super().__init__(self.__class__.__name__, service_id,
+                         customer_id=customer_id)
         self.interest_rate = interest_rate
         self.loan_amount = loan_amount
         self.term = term
+        self.payed = payed
+        logging.info("Loan initializer...")
+        logging.debug("Data: " + str(self.data_dict))
 
         @property
         def total_interest(self) -> int:
@@ -61,9 +75,27 @@ class CreditCard(Service):
         annual_fee: Annual fee if any as int.
     """
 
-    def __init__(self, service_type, service_id, customer_id=None,
-                 interest_rate=None, max_limit=None, annual_fee=None) -> None:
-        super().__init__(service_type, service_id, customer_id=customer_id)
+    def __init__(self, max_limit=None, interest_rate=None, annual_fee=90,
+                 service_id=None, customer_id=None,
+                 ) -> None:
+        super().__init__(self.__class__.__name__, service_id,
+                         customer_id=customer_id)
         self.interest_rate = interest_rate
         self.max_limit = max_limit
         self.annual_fee = annual_fee
+        logging.info("Credit card initializer...")
+        logging.debug("Data: " + str(self.data_dict))
+
+
+class CreditLimitError(Exception):
+    """Exception raised when trying to use over credit limit.
+
+    Attributes:
+        credit_limit: Max credit limit.
+        message: Error msg.
+    """
+
+    def __init__(self, credit_limit,
+                 message="Credit limit reached. Trying to go over: "):
+        super().__init__(message + str(credit_limit))
+        logging.error("Credit limit reached!")

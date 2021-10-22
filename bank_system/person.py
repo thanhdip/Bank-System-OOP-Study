@@ -1,3 +1,6 @@
+import logging
+
+
 class Person:
     """Represents a person in the banking system.
 
@@ -12,6 +15,8 @@ class Person:
         self.first_name = first_name
         self.last_name = last_name
         self.address = address
+        logging.info("Person initializer...")
+        logging.debug("Data: " + str(self.data_dict))
 
     def __str__(self) -> str:
         return f"""Name: {self.first_name} {self.last_name}
@@ -25,6 +30,9 @@ class Person:
     @property
     def data_dict(self) -> dict:
         """Dictionary representation of the person for data passing purposes.
+
+        Returns:
+            Dict of variable names and data.
         """
         return {"first_name": self.first_name,
                 "last_name": self.last_name,
@@ -51,12 +59,19 @@ class Employee(Person):
         self.employee_id = employee_id
         self.title = title
         self.salary = salary
+        logging.info("Employee initializer...")
+        logging.debug("Data: " + str(self.data_dict))
 
     def __str__(self) -> str:
         return f"--Employee--\n{self.title}\n{super().__str__()}"
 
     @property
     def data_dict(self) -> dict:
+        """Dictionary representation of the Employee for data passing purposes.
+
+        Returns:
+            Dict of variable names and data.
+        """
         data = super().data_dict
         data["employee_id"] = self.employee_id
         data["title"] = self.title
@@ -83,13 +98,18 @@ class Customer(Person):
         self.customer_id = customer_id
         self.accounts = accounts
         self.services = services
+        logging.info("Customer initializer...")
+        logging.debug("Data: " + str(self.data_dict))
 
     def __str__(self) -> str:
         return f"--Customer--\n{super().__str__()}"
 
     @property
     def data_dict(self) -> dict:
-        """Dictionary representation of the person for data passing purposes.
+        """Dictionary representation of the Customer for data passing purposes.
+
+        Returns:
+            Dict of variable names and data.
         """
         data = super().data_dict
         data["customer_id"] = self.customer_id
