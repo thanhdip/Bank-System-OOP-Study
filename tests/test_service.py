@@ -4,7 +4,7 @@ from bank_system import service
 
 loan1 = {
     "service_type": "Loan",
-    "service_id": 100,
+    "id": 100,
     "customer_id": 10001,
     "created_at": datetime(2021, 12, 30, 1, 55, 59, 111110),
     "borrowed_amount": 10000,
@@ -16,7 +16,7 @@ loan1 = {
 credit1 = {
     "borrowed_amount": 500,
     "service_type": "CreditCard",
-    "service_id": 100,
+    "id": 100,
     "customer_id": 10001,
     "created_at": datetime(2021, 12, 30, 1, 55, 59, 111110),
     "interest_rate": .02,
@@ -33,7 +33,7 @@ def loan_obj():
         loan1["customer_id"],
         loan1["term"],
         loan1["payed"],
-        loan1["service_id"],
+        loan1["id"],
         loan1["created_at"],
     )
 
@@ -46,7 +46,7 @@ def credit_obj():
         credit1["customer_id"],
         credit1["max_limit"],
         credit1["annual_fee"],
-        credit1["service_id"],
+        credit1["id"],
         credit1["created_at"],
     )
 

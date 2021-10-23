@@ -14,7 +14,7 @@ class Account:
     """
 
     def __init__(self, account_type, balance, customer_id, account_id=None,
-                 created_at=None) -> None:
+                 created_at=None):
         """Initialize account
 
         Args:
@@ -33,7 +33,7 @@ class Account:
         logging.debug("Data: " + str(self.data_dict))
 
     @property
-    def created_at(self) -> datetime.datetime:
+    def created_at(self):
         return self._created_at
 
     @property
@@ -65,19 +65,19 @@ class Account:
             self._customer_id = id
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the Account for data passing purposes.
 
         Returns:
             Dict of variable names and data.
         """
         return {"account_type": self.account_type,
-                "account_id": self.account_id,
+                "id": self.account_id,
                 "customer_id": self.customer_id,
                 "balance": self.balance,
                 "created_at": self.created_at}
 
-    def withdraw(self, amount) -> float:
+    def withdraw(self, amount):
         """Withdraw amount from account.
 
         Returns:
@@ -92,7 +92,7 @@ class Account:
             raise OverdraftError
         return self._balance
 
-    def deposit(self, amount) -> int:
+    def deposit(self, amount):
         """Deposit amount to account.
 
         Returns:
@@ -116,7 +116,7 @@ class Savings(Account):
 
     def __init__(
             self, balance, customer_id, savings_rate=.01, account_id=None,
-            created_at=None) -> None:
+            created_at=None):
         self.savings_rate = savings_rate
         super().__init__(
             self.__class__.__name__, balance, account_id=account_id,
@@ -125,7 +125,7 @@ class Savings(Account):
         logging.debug("Data: " + str(self.data_dict))
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the Savings account
         for data passing purposes.
 
@@ -150,7 +150,7 @@ class Checking(Account):
     """
 
     def __init__(self,  balance,  min_balance, customer_id, account_id=None,
-                 created_at=None) -> None:
+                 created_at=None):
         self.min_balance = min_balance
         super().__init__(
             self.__class__.__name__, balance, account_id=account_id,
@@ -159,7 +159,7 @@ class Checking(Account):
         logging.debug("Data: " + str(self.data_dict))
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the Checking account for data passing
         purposes.
 

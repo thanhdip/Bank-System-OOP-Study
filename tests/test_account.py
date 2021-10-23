@@ -5,7 +5,7 @@ from bank_system import account
 savings1 = {
     "balance": 1000,
     "account_type": "Savings",
-    "account_id": 1001,
+    "id": 1001,
     "customer_id": 2001,
     "savings_rate": .02,
     "created_at": datetime(2021, 12, 30, 1, 55, 59, 111110)
@@ -14,7 +14,7 @@ savings1 = {
 checking1 = {
     "balance": 1000,
     "account_type": "Checking",
-    "account_id": 1001,
+    "id": 1001,
     "customer_id": 2001,
     "min_balance": 500,
     "created_at": datetime(2020, 12, 30, 1, 55, 59, 111110)
@@ -27,7 +27,7 @@ def savings_obj() -> account.Savings:
         savings1["balance"],
         savings1["customer_id"],
         savings1["savings_rate"],
-        savings1["account_id"],
+        savings1["id"],
         savings1["created_at"]
     )
 
@@ -38,7 +38,7 @@ def checking_obj() -> account.Checking:
         checking1["balance"],
         checking1["min_balance"],
         checking1["customer_id"],
-        checking1["account_id"],
+        checking1["id"],
         checking1["created_at"],
     )
 

@@ -7,7 +7,7 @@ employee1 = {
     "last_name": "Donald",
     "address": "123 Caspy",
     "created_at": datetime(2021, 12, 30, 1, 55, 59, 111110),
-    "employee_id": 1000,
+    "id": 1000,
     "title": "Teller",
     "salary": 50000
 }
@@ -17,7 +17,7 @@ customer1 = {
     "last_name": "Drake",
     "address": "456 Take",
     "created_at": datetime(2020, 12, 30, 1, 55, 59, 111110),
-    "customer_id": 2000,
+    "id": 2000,
     "services": [],
     "accounts": []
 }
@@ -31,7 +31,7 @@ def employee_obj():
         employee1["address"],
         employee1["title"],
         employee1["salary"],
-        employee1["employee_id"],
+        employee1["id"],
         employee1["created_at"],
     )
 
@@ -43,7 +43,7 @@ def customer_obj():
         customer1["last_name"],
         customer1["address"],
         customer1["created_at"],
-        customer1["customer_id"],
+        customer1["id"],
         customer1["accounts"],
         customer1["services"],
     )

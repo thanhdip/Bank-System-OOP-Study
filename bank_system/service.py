@@ -14,7 +14,7 @@ class Service():
     """
 
     def __init__(self, borrowed_amount, interest_rate, service_type,
-                 service_id, customer_id, created_at=None) -> None:
+                 service_id, customer_id, created_at=None):
         """Service initialize Service.
 
         Args:
@@ -44,7 +44,7 @@ class Service():
             self._customer_id = id
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the service for data passing purposes.
 
         Returns:
@@ -52,7 +52,7 @@ class Service():
         """
         return {
             "service_type": self.service_type,
-            "service_id": self._service_id,
+            "id": self._service_id,
             "customer_id": self._customer_id,
             "created_at": self._created_at,
             "interest_rate": self.interest_rate,
@@ -79,7 +79,7 @@ class Loan(Service):
 
     def __init__(
             self, borrowed_amount, interest_rate, customer_id, term=2, payed=0,
-            service_id=None, created_at=None) -> None:
+            service_id=None, created_at=None):
         self.term = term
         self.payed = payed
         super().__init__(
@@ -89,15 +89,15 @@ class Loan(Service):
         logging.debug("Data: " + str(self.data_dict))
 
         @property
-        def total_interest(self) -> int:
+        def total_interest(self):
             return self.loan_amount * self.interest_rate
 
         @property
-        def monthly_payment(self) -> int:
+        def monthly_payment(self):
             return self.total_interest / (self.term * 12)
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the Loan for data passing purposes.
 
         Returns:
@@ -109,11 +109,11 @@ class Loan(Service):
         return data
 
     @property
-    def loan_left(self) -> float:
+    def loan_left(self):
         return self.borrowed_amount + (
             self.borrowed_amount * self.interest_rate) - self.payed
 
-    def pay(self, amount) -> float:
+    def pay(self, amount):
         """Pays off loan by an amount.
 
         Args:
@@ -154,7 +154,7 @@ class CreditCard(Service):
         logging.debug("Data: " + str(self.data_dict))
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the Credit for data passing purposes.
 
         Returns:
@@ -166,11 +166,11 @@ class CreditCard(Service):
         return data
 
     @property
-    def interest(self) -> dict:
+    def interest(self):
         "Amount of interest to be payed."
         return self.borrowed_amount * self.interest_rate
 
-    def pay(self, amount) -> int:
+    def pay(self, amount):
         """Pay off credit card bill. Can go over to be used later.
 
         Args:
@@ -182,7 +182,7 @@ class CreditCard(Service):
         self.borrowed_amount -= amount
         return self.borrowed_amount
 
-    def borrow(self, amount) -> int:
+    def borrow(self, amount):
         """Borrow from credit.
 
         Args:

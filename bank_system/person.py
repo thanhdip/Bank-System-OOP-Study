@@ -12,7 +12,7 @@ class Person:
         created_at: Time created at as datetime.datetime.
     """
 
-    def __init__(self, first_name, last_name, address, created_at) -> None:
+    def __init__(self, first_name, last_name, address, created_at):
         self.first_name = first_name
         self.last_name = last_name
         self.address = address
@@ -20,17 +20,17 @@ class Person:
         logging.info("Person initializer...")
         logging.debug("Data: " + str(self.data_dict))
 
-    def __str__(self) -> str:
+    def __str__(self):
         return f"""Name: {self.first_name} {self.last_name}
 Address: {self.address}"""
 
     @property
-    def full_name(self) -> str:
+    def full_name(self):
         """Full name of the person."""
         return f"{self.first_name} {self.last_name}"
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the person for data passing purposes.
 
         Returns:
@@ -58,7 +58,7 @@ class Employee(Person):
 
     def __init__(
             self, first_name, last_name, address, title, salary,
-            employee_id=None, created_at=None) -> None:
+            employee_id=None, created_at=None):
         self._employee_id = employee_id
         self.title = title
         self.salary = salary
@@ -66,28 +66,28 @@ class Employee(Person):
         logging.info("Employee initializer...")
         logging.debug("Data: " + str(self.data_dict))
 
-    def __str__(self) -> str:
+    def __str__(self):
         return f"--Employee--\n{self.title}\n{super().__str__()}"
 
     @property
-    def employee_id(self) -> int:
+    def employee_id(self):
         return self._employee_id
 
     @employee_id.setter
-    def employee_id(self, id) -> None:
+    def employee_id(self, id):
         "Cannot overwrite employee id if already set."
         if self._employee_id is None:
             self._employee_id = id
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the Employee for data passing purposes.
 
         Returns:
             Dict of variable names and data.
         """
         data = super().data_dict
-        data["employee_id"] = self._employee_id
+        data["id"] = self._employee_id
         data["title"] = self.title
         data["salary"] = self.salary
         return data
@@ -120,7 +120,7 @@ class Customer(Person):
         return f"--Customer--\n{super().__str__()}"
 
     @property
-    def customer_id(self) -> int:
+    def customer_id(self):
         return self._customer_id
 
     @customer_id.setter
@@ -130,14 +130,14 @@ class Customer(Person):
             self._customer_id = id
 
     @property
-    def data_dict(self) -> dict:
+    def data_dict(self):
         """Dictionary representation of the Customer for data passing purposes.
 
         Returns:
             Dict of variable names and data.
         """
         data = super().data_dict
-        data["customer_id"] = self.customer_id
+        data["id"] = self.customer_id
         data["accounts"] = self.accounts
         data["services"] = self.services
         return data
