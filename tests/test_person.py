@@ -18,8 +18,6 @@ customer1 = {
     "address": "456 Take",
     "created_at": datetime(2020, 12, 30, 1, 55, 59, 111110),
     "id": 2000,
-    "services": [],
-    "accounts": []
 }
 
 

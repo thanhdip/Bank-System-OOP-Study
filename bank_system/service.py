@@ -143,7 +143,7 @@ class CreditCard(Service):
     """
 
     def __init__(self, borrowed_amount, interest_rate, customer_id,
-                 max_limit=None, annual_fee=90, service_id=None,
+                 max_limit=4000, annual_fee=90, service_id=None,
                  created_at=None) -> None:
         self.max_limit = max_limit
         self.annual_fee = annual_fee

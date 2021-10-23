@@ -10,8 +10,17 @@ from account import Checking, Savings
 # Employees
 main_db = BankDatabase("main")
 
-emp1 = Employee("Soren", "Kierke", "Germany", "Teller", 50000)
+objs = []
+objs.append(Employee("Soren", "Kierke", "Germany", "Teller", 50000))
+objs.append(Customer("Gregory", "Nyssa", "Georgia"))
+objs.append(Loan(50000, .01, 1))
+objs.append(CreditCard(40000, .02, 1))
+objs.append(Checking(10000, 500, 1))
+objs.append(Savings(20000, 1))
 
-res = main_db.save_data(type(emp1).__name__, emp1.data_dict)
 
-print(res)
+for obj in objs:
+    res = main_db.save_data(type(obj).__name__, obj.data_dict)
+    print(res)
+    obj.id = res[0]
+    obj.created_at = res[1]

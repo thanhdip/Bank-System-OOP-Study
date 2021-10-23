@@ -31,9 +31,9 @@ class BankDatabase:
             obj_data = self._customer_class(**data_dict)
         elif class_name == "Employee":
             obj_data = self._employee_class(**data_dict)
-        elif class_name == "Account":
+        elif class_name == "Checking" or class_name == "Savings":
             obj_data = self._account_class(**data_dict)
-        elif class_name == "Service":
+        elif class_name == "Loan" or class_name == "CreditCard":
             obj_data = self._service_class(**data_dict)
 
         with self._session() as ses:

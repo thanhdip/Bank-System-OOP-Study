@@ -36,6 +36,11 @@ class Account:
     def created_at(self):
         return self._created_at
 
+    @created_at.setter
+    def created_at(self, created_at):
+        if self._created_at is None:
+            self._created_at = created_at
+
     @property
     def balance(self):
         return self._balance

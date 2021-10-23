@@ -107,7 +107,7 @@ class Customer(Person):
         created_at: Time created at as datetime.datetime.
     """
 
-    def __init__(self, first_name, last_name, address, created_at,
+    def __init__(self, first_name, last_name, address, created_at=None,
                  customer_id=None, accounts=[], services=[]) -> None:
         self._customer_id = customer_id
         self.accounts = accounts
@@ -138,6 +138,4 @@ class Customer(Person):
         """
         data = super().data_dict
         data["id"] = self.customer_id
-        data["accounts"] = self.accounts
-        data["services"] = self.services
         return data
