@@ -16,7 +16,7 @@ class BankDatabase:
         No public attributes.
     """
 
-    def __init__(self, dbname):
+    def __init__(self, dbname, mem_mode=False):
         # Table mapping
         self._table_name_account = "accounts"
         self._table_name_customer = "customers"
@@ -26,6 +26,9 @@ class BankDatabase:
         # Start DB
         self._engine = create_engine(
             f"sqlite:///{dbname}.db")
+        if mem_mode:
+            self._engine = create_engine(
+                f"sqlite:///:memory:")
         self._meta = MetaData(bind=self._engine)
         self._Base = declarative_base(metadata=self._meta)
         self._session = sessionmaker(self._engine)

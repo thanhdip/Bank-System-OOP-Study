@@ -42,8 +42,6 @@ def customer_obj():
         customer1["address"],
         customer1["created_at"],
         customer1["id"],
-        customer1["accounts"],
-        customer1["services"],
     )
 
 
@@ -62,12 +60,12 @@ def test_data_dict(employee_obj, customer_obj):
 
 
 def test_employee_id(employee_obj):
-    assert employee_obj.employee_id == employee1["employee_id"]
+    assert employee_obj.employee_id == employee1["id"]
     employee_obj.employee_id = 1
-    assert employee_obj.employee_id == employee1["employee_id"]
+    assert employee_obj.employee_id == employee1["id"]
 
 
 def test_customer_id(customer_obj):
-    assert customer_obj.customer_id == customer1["customer_id"]
+    assert customer_obj.customer_id == customer1["id"]
     customer_obj.customer_id = 1
-    assert customer_obj.customer_id == customer1["customer_id"]
+    assert customer_obj.customer_id == customer1["id"]

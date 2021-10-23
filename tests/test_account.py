@@ -22,7 +22,7 @@ checking1 = {
 
 
 @pytest.fixture
-def savings_obj() -> account.Savings:
+def savings_obj():
     return account.Savings(
         savings1["balance"],
         savings1["customer_id"],
@@ -33,7 +33,7 @@ def savings_obj() -> account.Savings:
 
 
 @pytest.fixture
-def checking_obj() -> account.Checking:
+def checking_obj():
     return account.Checking(
         checking1["balance"],
         checking1["min_balance"],
@@ -59,11 +59,11 @@ def test_account_type(savings_obj, checking_obj):
 
 
 def test_account_id(savings_obj, checking_obj):
-    assert savings_obj.account_id == savings1["account_id"]
-    assert checking_obj.account_id == checking1["account_id"]
+    assert savings_obj.account_id == savings1["id"]
+    assert checking_obj.account_id == checking1["id"]
     savings_obj.account_id = 1
     checking_obj.account_id = 1
-    assert savings_obj.account_id == savings1["account_id"]
+    assert savings_obj.account_id == savings1["id"]
 
 
 def test_customer_id(savings_obj, checking_obj):
