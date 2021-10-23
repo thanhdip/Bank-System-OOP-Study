@@ -1,7 +1,6 @@
 from sqlalchemy import create_engine, Table, Column, MetaData
 from sqlalchemy import Integer, Float, String, DateTime
 from sqlalchemy import insert, update, delete
-from sqlalchemy import engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.engine import ResultProxy
@@ -27,21 +26,20 @@ class BankDatabase:
         self._meta.create_all()
 
     def save_data(self, class_name, data_dict):
+        obj_data = None
         if class_name == "Customer":
-            return self._save_data(data_dict, self._table_name_customer)
+            obj_data = self._customer_class(**data_dict)
         elif class_name == "Employee":
-            new_row_vals = self._employee_class(**data_dict)
-            with self._session() as ses:
-                ses.add(new_row_vals)
-                ses.commit()
-                print(repr(new_row_vals))
-                res = new_row_vals.id
-            return res
+            obj_data = self._employee_class(**data_dict)
+        elif class_name == "Account":
+            obj_data = self._account_class(**data_dict)
+        elif class_name == "Service":
+            obj_data = self._service_class(**data_dict)
 
-    def _save_data(self, data_dict, table_name):
-        table = self._meta.tables[table_name]
-        stmt = (insert(table).values(data_dict).return_defaults())
-        res = self._engine.connect().execute(stmt)
+        with self._session() as ses:
+            ses.add(obj_data)
+            ses.commit()
+            res = (obj_data.id, obj_data.created_at)
         return res
 
     def _create_tables_account(self):

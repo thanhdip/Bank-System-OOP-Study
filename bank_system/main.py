@@ -8,7 +8,7 @@ from account import Checking, Savings
 # Give bank system database
 # Bank system can create employees, customers, accounts, and services
 # Employees
-main_db = BankDatabase("main_db")
+main_db = BankDatabase("main")
 
 emp1 = Employee("Soren", "Kierke", "Germany", "Teller", 50000)
 
