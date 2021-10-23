@@ -3,7 +3,6 @@ from sqlalchemy import Integer, Float, String, DateTime
 from sqlalchemy import insert, update, delete
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
-from sqlalchemy.engine import ResultProxy
 from sqlalchemy.orm import sessionmaker
 
 
@@ -18,6 +17,7 @@ class BankDatabase:
         self._meta = MetaData(bind=self._engine)
         self._Base = declarative_base(metadata=self._meta)
         self._session = sessionmaker(self._engine)
+
         # Create tables if needed
         self._employee_class = self._create_tables_employee()
         self._account_class = self._create_tables_account()
@@ -27,17 +27,36 @@ class BankDatabase:
 
     def save_data(self, class_name, data_dict):
         obj_data = None
+        obj_class = None
         if class_name == "Customer":
             obj_data = self._customer_class(**data_dict)
+            obj_class = self._customer_class
         elif class_name == "Employee":
             obj_data = self._employee_class(**data_dict)
+            obj_class = self._employee_class
         elif class_name == "Checking" or class_name == "Savings":
             obj_data = self._account_class(**data_dict)
+            obj_class = self._account_class
         elif class_name == "Loan" or class_name == "CreditCard":
             obj_data = self._service_class(**data_dict)
+            obj_class = self._account_class
 
+        if data_dict["id"] is None:
+            return self._add_data(obj_data)
+        else:
+            return self._update_data(obj_data, obj_class, data_dict)
+
+    def _add_data(self, obj_data):
         with self._session() as ses:
             ses.add(obj_data)
+            ses.commit()
+            res = (obj_data.id, obj_data.created_at)
+        return res
+
+    def _update_data(self, obj_data, obj_class, data_dict):
+        with self._session() as ses:
+            response = ses.query(obj_class).filter_by(id=obj_data.id)
+            response.update(data_dict)
             ses.commit()
             res = (obj_data.id, obj_data.created_at)
         return res
