@@ -71,8 +71,10 @@ class BankDatabase:
         else:
             return self._update_data(obj_data, obj_class, data_dict)
 
-    def find_employee(self, first_name, last_name, address):
+    def find_employee(
+            self, first_name=None, last_name=None, address=None, id=None):
         """Find employee in the database. Given the neccesary info as args.
+        Returns empty list if everything is None.
 
         Args:
             first_name: Can be None.
@@ -83,27 +85,35 @@ class BankDatabase:
             Array of the employees as dicts.
         """
         return self._find_person(
-            self._employee_class, first_name, last_name, address)
+            self._employee_class, first_name, last_name, address, id)
 
-    def find_customer(self, first_name, last_name, address):
+    def find_customer(
+            self, first_name=None, last_name=None, address=None, id=None):
         """Find customer in the database. Given the neccesary info as args.
+        Returns empty list if everything is None.
 
         Args:
             first_name: Can be None.
             last_name: Can be None.
             address: Can be None.
+            id: Default is None.
 
         Returns:
             Array of the customer as dicts.
         """
         return self._find_person(
-            self._customer_class, first_name, last_name, address)
+            self._customer_class, first_name, last_name, address, id)
 
-    def _find_person(self, search_class, first_name, last_name, address):
+    def _find_person(
+            self, search_class, first_name, last_name, address, id=None):
+        if first_name is None:
+            return []
         res = []
         with self._session() as ses:
-            response = ses.query(search_class).filter_by(
-                first_name=first_name)
+            response = ses.query(search_class).filter_by(first_name=first_name)
+            if id is not None:
+                response.filter_by(
+                    id=id)
             if last_name is not None:
                 response.filter_by(last_name=last_name)
             if address is not None:
