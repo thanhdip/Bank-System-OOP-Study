@@ -1,17 +1,29 @@
-from sqlalchemy import create_engine, Table, Column, MetaData
+from sqlalchemy import create_engine, Column, MetaData
 from sqlalchemy import Integer, Float, String, DateTime
-from sqlalchemy import insert, update, delete
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import sessionmaker
 
 
 class BankDatabase:
+    """Represents the database of the banking system. Handles reading
+    and writing data in sqlite to a file in the local directory.
+
+    Create new db with db name:
+        new_db = BankDatabase("new_db")
+
+    Attributes:
+        No public attributes.
+    """
+
     def __init__(self, dbname):
+        # Table mapping
         self._table_name_account = "accounts"
         self._table_name_customer = "customers"
         self._table_name_employee = "employees"
         self._table_name_service = "services"
+
+        # Start DB
         self._engine = create_engine(
             f"sqlite:///{dbname}.db")
         self._meta = MetaData(bind=self._engine)
@@ -39,6 +51,15 @@ class BankDatabase:
         return obj_class
 
     def save_data(self, class_name, data_dict):
+        """Save data to the database.
+
+        Args:
+            class_name: Requires the class name of the object.
+            data_dict: Requires the data representation of the object.
+
+        Returns:
+            Tuple(id, created_at): Where id is the id primary key in the db.
+        """
         obj_class = self._get_table_class(class_name)
         obj_data = obj_class(**data_dict)
 
@@ -48,10 +69,30 @@ class BankDatabase:
             return self._update_data(obj_data, obj_class, data_dict)
 
     def find_employee(self, first_name, last_name, address):
+        """Find employee in the database. Given the neccesary info as args.
+
+        Args:
+            first_name: Can be None.
+            last_name: Can be None.
+            address: Can be None.
+
+        Returns:
+            Array of the employees as dicts.
+        """
         return self._find_person(
             self._employee_class, first_name, last_name, address)
 
     def find_customer(self, first_name, last_name, address):
+        """Find customer in the database. Given the neccesary info as args.
+
+        Args:
+            first_name: Can be None.
+            last_name: Can be None.
+            address: Can be None.
+
+        Returns:
+            Array of the customer as dicts.
+        """
         return self._find_person(
             self._customer_class, first_name, last_name, address)
 
