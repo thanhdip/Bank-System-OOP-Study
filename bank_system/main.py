@@ -38,3 +38,9 @@ for obj in objs:
         obj.withdraw(1)
     res = main_db.save_data(type(obj).__name__, obj.data_dict)
     print(res)
+
+print(main_db.find_customer("Gregory", None, None))
+print(main_db.find_employee("Soren", None, None))
+
+print(main_db.get_accounts(1))
+main_db.delete_data("Employee", 1)

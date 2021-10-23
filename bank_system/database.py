@@ -25,26 +25,78 @@ class BankDatabase:
         self._service_class = self._create_tables_service()
         self._meta.create_all()
 
-    def save_data(self, class_name, data_dict):
-        obj_data = None
+    def _get_table_class(self, class_name):
         obj_class = None
         if class_name == "Customer":
-            obj_data = self._customer_class(**data_dict)
             obj_class = self._customer_class
         elif class_name == "Employee":
-            obj_data = self._employee_class(**data_dict)
             obj_class = self._employee_class
         elif class_name == "Checking" or class_name == "Savings":
-            obj_data = self._account_class(**data_dict)
             obj_class = self._account_class
         elif class_name == "Loan" or class_name == "CreditCard":
-            obj_data = self._service_class(**data_dict)
-            obj_class = self._account_class
+            obj_class = self._service_class
+
+        return obj_class
+
+    def save_data(self, class_name, data_dict):
+        obj_class = self._get_table_class(class_name)
+        obj_data = obj_class(**data_dict)
 
         if data_dict["id"] is None:
             return self._add_data(obj_data)
         else:
             return self._update_data(obj_data, obj_class, data_dict)
+
+    def find_employee(self, first_name, last_name, address):
+        return self._find_person(
+            self._employee_class, first_name, last_name, address)
+
+    def find_customer(self, first_name, last_name, address):
+        return self._find_person(
+            self._customer_class, first_name, last_name, address)
+
+    def _find_person(self, search_class, first_name, last_name, address):
+        res = []
+        with self._session() as ses:
+            response = ses.query(search_class).filter_by(
+                first_name=first_name)
+            if last_name is not None:
+                response.filter_by(last_name=last_name)
+            if address is not None:
+                response.filter_by(address=address)
+            for r in response:
+                if r is not None:
+                    res.append(
+                        {key: getattr(r, key)for key in
+                         search_class.__table__.columns.keys()})
+        return res
+
+    def get_accounts(self, customer_id):
+        return self._get_serv_acco(self._account_class, customer_id)
+
+    def get_services(self, customer_id):
+        return self._get_serv_acco(self._service_class, customer_id)
+
+    def _get_serv_acco(self, search_class, customer_id):
+        res = []
+        with self._session() as ses:
+            response = ses.query(search_class).filter_by(
+                customer_id=customer_id)
+            for r in response:
+                if r is not None:
+                    res.append(
+                        {key: getattr(r, key)for key in
+                         search_class.__table__.columns.keys()})
+        return res
+
+    def delete_data(self, class_name, id):
+        with self._session() as ses:
+            response = ses.query(
+                self._get_table_class(class_name)).filter_by(
+                id=id)
+            if response is not None:
+                response.delete()
+            ses.commit()
 
     def _add_data(self, obj_data):
         with self._session() as ses:
