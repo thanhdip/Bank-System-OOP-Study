@@ -44,6 +44,15 @@ add_argument_ln(find_parser)
 add_argument_ad(find_parser)
 add_argument_id(find_parser)
 
+# Create subcommand
+create_parser = employee_subparser.add_parser(
+    'create', help='create employees and returns ID to reference later.')
+create_parser.add_argument("fn", type=str, help="first name")
+create_parser.add_argument("ln", type=str, help="last name")
+create_parser.add_argument("ad", type=str, help="address")
+create_parser.add_argument("ti", type=str, help="title")
+create_parser.add_argument("sa", type=int, help="salary")
+
 
 class BankSystemShell(cmd2.Cmd):
     intro = ("=============================================================\n"
@@ -69,6 +78,11 @@ class BankSystemShell(cmd2.Cmd):
     prompt = "[Admin] > "
     ruler = "="
 
+    def employee_create(self, args):
+        emp = Employee(args.fn, args.ln, args.ad, args.ti, args.sa)
+        res = self._main_db.save_data(type(emp).__name__, emp.data_dict)
+        self.poutput("ID: " + str(res[0]))
+
     def employee_search(self, args):
         res = self._main_db.find_employee(args.fn, args.ln, args.ad, args.id)
         if res == []:
@@ -79,10 +93,11 @@ class BankSystemShell(cmd2.Cmd):
 
     # Set function to subcommand
     find_parser.set_defaults(func=employee_search)
+    create_parser.set_defaults(func=employee_create)
 
     @ cmd2.with_argparser(employee_parser)
     def do_employee(self, args):
-        "Adminitrate Employees. Add, Update, Delete, Search"
+        "Adminitrate Employees. Create, Update, Delete, Find"
         func = getattr(args, 'func', None)
         if func is not None:
             func(self, args)
