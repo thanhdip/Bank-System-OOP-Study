@@ -18,6 +18,18 @@ def add_argument_fn(parser):
     parser.add_argument("-fn",  type=str, help="first name")
 
 
+def add_argument_ln(parser):
+    parser.add_argument("-ln", default=None, type=str, help="last name")
+
+
+def add_argument_ad(parser):
+    parser.add_argument("-ad", default=None, type=str, help="address")
+
+
+def add_argument_id(parser):
+    parser.add_argument("-id", default=None, type=int, help="id as integer")
+
+
 # EMPLOYEES
 employee_parser = cmd2.Cmd2ArgumentParser()
 employee_subparser = employee_parser.add_subparsers(
@@ -28,12 +40,9 @@ employee_subparser = employee_parser.add_subparsers(
 find_parser = employee_subparser.add_parser(
     'find', help='search for employees and returns a list of employees')
 add_argument_fn(find_parser)
-find_parser.add_argument(
-    "-ln", default=None, type=str, help="last name")
-find_parser.add_argument(
-    "-ad", default=None, type=str, help="address")
-find_parser.add_argument(
-    "-id", default=None, type=int, help="id as integer")
+add_argument_ln(find_parser)
+add_argument_ad(find_parser)
+add_argument_id(find_parser)
 
 
 class BankSystemShell(cmd2.Cmd):
@@ -62,11 +71,8 @@ class BankSystemShell(cmd2.Cmd):
 
     def employee_search(self, args):
         res = self._main_db.find_employee(args.fn, args.ln, args.ad, args.id)
-        out = (f"Finding {args.fn} {args.ln}"
-               f" {args.ad} {args.id}...")
-        self.poutput(out)
         if res == []:
-            self.poutput("Nothing Found")
+            self.poutput("Nothing Found. Try with -h for help.")
         else:
             for emp in res:
                 self.poutput(pprint.pformat(emp))
@@ -74,7 +80,7 @@ class BankSystemShell(cmd2.Cmd):
     # Set function to subcommand
     find_parser.set_defaults(func=employee_search)
 
-    @cmd2.with_argparser(employee_parser)
+    @ cmd2.with_argparser(employee_parser)
     def do_employee(self, args):
         "Adminitrate Employees. Add, Update, Delete, Search"
         func = getattr(args, 'func', None)
