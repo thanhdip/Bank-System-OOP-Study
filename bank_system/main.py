@@ -11,6 +11,30 @@ import sys
 import pprint
 import argparse
 
+# Functions to reuse arguments
+
+
+def add_argument_fn(parser):
+    parser.add_argument("-fn",  type=str, help="first name")
+
+
+# EMPLOYEES
+employee_parser = cmd2.Cmd2ArgumentParser()
+employee_subparser = employee_parser.add_subparsers(
+    title="Available Commands",
+    help="use these commands to admin employees")
+
+# Find subcommand
+find_parser = employee_subparser.add_parser(
+    'find', help='search for employees and returns a list of employees')
+add_argument_fn(find_parser)
+find_parser.add_argument(
+    "-ln", default=None, type=str, help="last name")
+find_parser.add_argument(
+    "-ad", default=None, type=str, help="address")
+find_parser.add_argument(
+    "-id", default=None, type=int, help="id as integer")
+
 
 class BankSystemShell(cmd2.Cmd):
     intro = ("=============================================================\n"
@@ -36,30 +60,12 @@ class BankSystemShell(cmd2.Cmd):
     prompt = "[Admin] > "
     ruler = "="
 
-    # EMPLOYEES
-    employee_parser = cmd2.Cmd2ArgumentParser()
-    employee_subparser = employee_parser.add_subparsers(
-        title="Available Commands",
-        help="use these commands to admin employees")
-
-    # Find subcommand
-    find_parser = employee_subparser.add_parser(
-        'find', help='search for employees and returns a list of employees')
-    find_parser.add_argument(
-        "-fn",  type=str, help="first name")
-    find_parser.add_argument(
-        "-ln", default=None, type=str, help="last name")
-    find_parser.add_argument(
-        "-ad", default=None, type=str, help="address")
-    find_parser.add_argument(
-        "-id", default=None, type=int, help="id as integer")
-
     def employee_search(self, args):
         res = self._main_db.find_employee(args.fn, args.ln, args.ad, args.id)
         out = (f"Finding {args.fn} {args.ln}"
-               f" {args.ad} {args.id}")
+               f" {args.ad} {args.id}...")
         self.poutput(out)
-        if res is []:
+        if res == []:
             self.poutput("Nothing Found")
         else:
             for emp in res:
@@ -80,6 +86,7 @@ class BankSystemShell(cmd2.Cmd):
 
 def main():
     main_db = BankDatabase("main")
+    # print(main_db.find_employee())
     cli = BankSystemShell(main_db)
     sys.exit(cli.cmdloop())
 

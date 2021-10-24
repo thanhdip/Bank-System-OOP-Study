@@ -108,15 +108,17 @@ class BankDatabase:
             self, search_class, first_name, last_name, address, id=None):
         res = []
         with self._session() as ses:
-            response = ses.query(search_class)
-            if first_name is not None:
-                response.filter_by(first_name=first_name)
-            if id is not None:
-                response.filter_by(id=id)
-            if last_name is not None:
-                response.filter_by(last_name=last_name)
-            if address is not None:
-                response.filter_by(address=address)
+            search = {
+                kwarg[0]: kwarg[1]
+                for kwarg
+                in (
+                    ("first_name", first_name),
+                    ("last_name", last_name),
+                    ("address", address),
+                    ("id", id)) if kwarg[1] is not None}
+            if search == {}:
+                return []
+            response = ses.query(search_class).filter_by(**search)
             for r in response:
                 if r is not None:
                     res.append(
