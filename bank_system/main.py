@@ -8,6 +8,7 @@ from account import Checking, Savings
 
 import cmd2
 import sys
+import pprint
 import argparse
 
 
@@ -29,7 +30,7 @@ class BankSystemShell(cmd2.Cmd):
         del cmd2.Cmd.do_shortcuts
         del cmd2.Cmd.do_shell
         del cmd2.Cmd.do_macro
-        del cmd2.Cmd.do_set
+        # del cmd2.Cmd.do_set
 
     doc_header = 'All Bank Commands'
     prompt = "[Admin] > "
@@ -45,18 +46,24 @@ class BankSystemShell(cmd2.Cmd):
     find_parser = employee_subparser.add_parser(
         'find', help='search for employees and returns a list of employees')
     find_parser.add_argument(
-        "first_name", type=str, help="first name")
+        "-fn",  type=str, help="first name")
     find_parser.add_argument(
-        "last_name", default=None, type=str, help="last name")
+        "-ln", default=None, type=str, help="last name")
     find_parser.add_argument(
-        "address", default=None, type=str, help="address")
+        "-ad", default=None, type=str, help="address")
     find_parser.add_argument(
-        "id", default=None, type=int, help="id as integer")
+        "-id", default=None, type=int, help="id as integer")
 
     def employee_search(self, args):
-        self.poutput(
-            (f"Finding {args.first_name} {args.last_name}")
-            (f" {args.address} {args.id}"))
+        res = self._main_db.find_employee(args.fn, args.ln, args.ad, args.id)
+        out = (f"Finding {args.fn} {args.ln}"
+               f" {args.ad} {args.id}")
+        self.poutput(out)
+        if res is []:
+            self.poutput("Nothing Found")
+        else:
+            for emp in res:
+                self.poutput(pprint.pformat(emp))
 
     # Set function to subcommand
     find_parser.set_defaults(func=employee_search)

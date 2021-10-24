@@ -106,14 +106,13 @@ class BankDatabase:
 
     def _find_person(
             self, search_class, first_name, last_name, address, id=None):
-        if first_name is None:
-            return []
         res = []
         with self._session() as ses:
-            response = ses.query(search_class).filter_by(first_name=first_name)
+            response = ses.query(search_class)
+            if first_name is not None:
+                response.filter_by(first_name=first_name)
             if id is not None:
-                response.filter_by(
-                    id=id)
+                response.filter_by(id=id)
             if last_name is not None:
                 response.filter_by(last_name=last_name)
             if address is not None:
