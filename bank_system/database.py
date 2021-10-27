@@ -126,17 +126,23 @@ class BankDatabase:
                          search_class.__table__.columns.keys()})
         return res
 
-    def get_accounts(self, customer_id):
-        return self._get_serv_acco(self._account_class, customer_id)
+    def get_accounts(self, customer_id=0, aco_ser_id=None):
+        return self._get_serv_acco(
+            self._account_class, customer_id, aco_ser_id)
 
-    def get_services(self, customer_id):
-        return self._get_serv_acco(self._service_class, customer_id)
+    def get_services(self, customer_id=0, aco_ser_id=None):
+        return self._get_serv_acco(
+            self._service_class, customer_id, aco_ser_id)
 
-    def _get_serv_acco(self, search_class, customer_id):
+    def _get_serv_acco(self, search_class, customer_id=0, aco_ser_id=None):
         res = []
         with self._session() as ses:
-            response = ses.query(search_class).filter_by(
-                customer_id=customer_id)
+            if aco_ser_id is not None:
+                response = ses.query(search_class).filter_by(
+                    id=aco_ser_id)
+            else:
+                response = ses.query(search_class).filter_by(
+                    customer_id=customer_id)
             for r in response:
                 if r is not None:
                     res.append(

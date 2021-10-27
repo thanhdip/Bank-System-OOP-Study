@@ -1,5 +1,6 @@
 import re
 from account import Account
+from service import CreditLimitError, OverpayedError
 from person import Person
 from service import Service
 from database import BankDatabase
@@ -110,34 +111,29 @@ s_create_parser.add_argument(
     'type',  type=str, help="Type of service",
     choices=["loan", "credit"])
 s_create_parser.add_argument('ba', type=float, help="borrowed amount")
-s_create_parser.add_argument('in', type=float, help="interest rate")
-s_create_parser.add_argument('cid', type=int, help="customer id")
+s_create_parser.add_argument('int', type=float, help="interest rate")
 
 # Find subcommand
 s_find_parser = service_subparser.add_parser(
     'find', help='find services of customers.')
-s_find_parser.add_argument(
-    'type',  type=str, help="Type of service",
-    choices=["loan", "credit"])
 s_find_parser.add_argument('cid', type=int, help="Customer ID")
 
 # Delete subcommand
 s_delete_parser = service_subparser.add_parser(
     'delete', help='delete services of customers.')
-s_delete_parser.add_argument(
-    'type',  type=str, help="Type of service",
-    choices=["loan", "credit"])
 s_delete_parser.add_argument('id', type=int, help="Service ID")
 
 # Update subcommand
 sl_update_parser = service_subparser.add_parser(
     'update_loan', help='update loans of a customer.')
+sl_update_parser.add_argument('id', type=int, help="loan's service id")
 sl_update_parser.add_argument('-int', type=float, help="interest rate")
 sl_update_parser.add_argument('-te', type=float, help="term")
 sl_update_parser.add_argument('-pay', type=float, help="pay()")
 
 sc_update_parser = service_subparser.add_parser(
     'update_credit', help='update credit cards of a customer.')
+sc_update_parser.add_argument('id', type=int, help="credit's service id")
 sc_update_parser.add_argument('-int', type=float, help="interest rate")
 sc_update_parser.add_argument('-max', type=int, help="credit max limit.")
 sc_update_parser.add_argument('-fee', type=int, help="annual fee")
@@ -173,7 +169,7 @@ a_find_parser.add_argument('cid', type=int, help="Customer ID")
 
 # Delete subcommand
 a_delete_parser = account_subparser.add_parser(
-    'delete', help='find account of customer'
+    'delete', help='delete account of customer'
 )
 a_delete_parser.add_argument(
     'type',  type=str, help="Type of Account",
@@ -182,7 +178,7 @@ a_delete_parser.add_argument('cid', type=int, help="Customer ID")
 
 # Update subcommand
 a_update_parser = account_subparser.add_parser(
-    'update', help='find account of customer'
+    'update', help='update account of customer'
 )
 a_update_parser.add_argument(
     'type',  type=str, help="Type of Account",
@@ -256,14 +252,12 @@ class BankSystemShell(cmd2.Cmd):
             self.poutput(f"Employee {emp['id']} loaded.")
 
     def employee_update(self, args):
-        # Load employee, change base on context.
         if args.l is not None:
             self.employee_load(args.l)
         if self._employee_obj is None:
             self.poutput(
                 "Please load an employee to update. 'employee update -l [ID]'")
         else:
-            # Inner loop
             if args.fn is not None:
                 self._employee_obj.first_name = args.fn
                 self.poutput("First name updated.")
@@ -340,7 +334,6 @@ class BankSystemShell(cmd2.Cmd):
             self.poutput(
                 "Please load a customer to update. 'customer update -l [ID]'")
         else:
-            # Inner loop
             if args.fn is not None:
                 self._customer_obj.first_name = args.fn
                 self.poutput("First name updated.")
@@ -376,6 +369,106 @@ class BankSystemShell(cmd2.Cmd):
             self.do_help('customer')
 
     # Services
+    def service_find(self, args):
+        res = self._main_db.get_services(args.cid)
+        if res == []:
+            self.poutput("Nothing found. Try with -h for help.")
+        else:
+            for ser in res:
+                self.poutput(pprint.pformat(ser))
+
+    def service_create(self, args):
+        if self._customer_obj is None:
+            self.poutput(
+                ("Please load a customer to add service."
+                 "\n'customer update -l [ID]'"))
+        else:
+            if args.type == "loan":
+                serv = Loan(args.ba, args.int, self._customer_obj.customer_id)
+            else:
+                serv = CreditCard(args.ba, args.int,
+                                  self._customer_obj.customer_id)
+            res = self._main_db.save_data(
+                type(serv).__name__, serv.data_dict)
+            self.poutput("Service ID: " + str(res[0]))
+            self.poutput(
+                f"Added to customer {self._customer_obj._customer_id}")
+
+    def service_update_loan(self, args):
+        res = self._main_db.get_services(aco_ser_id=args.id)
+        if res == []:
+            self.poutput("Loan not found.")
+        else:
+            if res[0]["service_type"] == "CreditCard":
+                self.poutput("Not a loan.")
+                return
+            resL = res[0]
+            del resL["service_type"]
+            del resL["max_limit"]
+            del resL["annual_fee"]
+            loan = Loan(**resL)
+            if args.int is not None:
+                loan.interest_rate = args.int
+            if args.te is not None:
+                loan.term = args.te
+            if args.pay is not None:
+                try:
+                    loan.pay(args.pay)
+                except OverpayedError:
+                    self.poutput("Overpaying, try again and pay less!")
+            self._main_db.save_data(type(loan).__name__, loan.data_dict)
+            self.poutput(
+                (f"Customer {loan.customer_id}"
+                 f"\nLoan {loan.id} updated."))
+
+    def service_update_credit(self, args):
+        res = self._main_db.get_services(aco_ser_id=args.id)
+        if res == []:
+            self.poutput("Credit card not found.")
+        else:
+            if res[0]["service_type"] == "Loan":
+                self.poutput("Not a Credit card.")
+                return
+            resL = res[0]
+            del resL["service_type"]
+            del resL["term"]
+            del resL["payed"]
+            credit = CreditCard(**resL)
+            if args.int is not None:
+                credit.interest_rate = args.int
+            if args.max is not None:
+                credit.max_limit = args.max
+            if args.fee is not None:
+                credit.annual_fee = args.fee
+            if args.pay is not None:
+                total = credit.pay(args.pay)
+                self.poutput(f"Paying {args.pay}")
+                self.poutput(f"Balance: {total}")
+            if args.borrow is not None:
+                try:
+                    total = credit.borrow(args.borrow)
+                    self.poutput(f"Borrowing {args.borrow}")
+                    self.poutput(f"Balance: {total}")
+                except CreditLimitError:
+                    self.poutput(
+                        "Credit Limit Hit. Pay off more or borrow less.")
+            self._main_db.save_data(type(credit).__name__, credit.data_dict)
+            self.poutput(
+                (f"Customer {credit.customer_id}"
+                 f"\nCredit card {credit.id} updated."))
+
+    def service_delete(self, args):
+        self.poutput(args.id)
+        # Delete works with both
+        self._main_db.delete_data(Loan.__name__, args.id)
+        self.poutput(f"Deleting {args.id} if exists.")
+
+    s_find_parser.set_defaults(func=service_find)
+    s_create_parser.set_defaults(func=service_create)
+    sl_update_parser.set_defaults(func=service_update_loan)
+    sc_update_parser.set_defaults(func=service_update_credit)
+    s_delete_parser.set_defaults(func=service_delete)
+
     @ cmd2.with_argparser(service_parser)
     def do_service(self, args):
         "Administrate Customer's services. Add, Update, Delete, Find."
@@ -383,12 +476,34 @@ class BankSystemShell(cmd2.Cmd):
         if func is not None:
             func(self, args)
         else:
-            self.do_help('customer')
+            self.do_help('service')
 
-    @ staticmethod
-    def print_choices(choice_list):
-        for i, choice in enumerate(choice_list):
-            print(f"[{i}] {choice}")
+    # Accounts
+    def account_find(self, args):
+        pass
+
+    def account_create(self, args):
+        pass
+
+    def account_update(self, args):
+        pass
+
+    def account_delete(self, args):
+        pass
+
+    a_find_parser.set_defaults(func=account_find)
+    a_create_parser.set_defaults(func=account_create)
+    a_update_parser.set_defaults(func=account_update)
+    a_delete_parser.set_defaults(func=account_delete)
+
+    @ cmd2.with_argparser(account_parser)
+    def do_account(self, args):
+        "Administrate Customer's accounts. Add, Update, Delete, Find."
+        func = getattr(args, 'func', None)
+        if func is not None:
+            func(self, args)
+        else:
+            self.do_help('account')
 
 
 def main():

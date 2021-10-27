@@ -14,7 +14,7 @@ class Service():
     """
 
     def __init__(self, borrowed_amount, interest_rate, service_type,
-                 service_id, customer_id, created_at=None):
+                 id, customer_id, created_at=None):
         """Service initialize Service.
 
         Args:
@@ -27,7 +27,7 @@ class Service():
         self.service_type = service_type
         self.borrowed_amount = borrowed_amount
         self.interest_rate = interest_rate
-        self._service_id = service_id
+        self.id = id
         self._customer_id = customer_id
         self._created_at = created_at
         logging.info("Service initializer...")
@@ -52,7 +52,7 @@ class Service():
         """
         return {
             "service_type": self.service_type,
-            "id": self._service_id,
+            "id": self.id,
             "customer_id": self._customer_id,
             "created_at": self._created_at,
             "interest_rate": self.interest_rate,
@@ -79,12 +79,12 @@ class Loan(Service):
 
     def __init__(
             self, borrowed_amount, interest_rate, customer_id, term=2, payed=0,
-            service_id=None, created_at=None):
+            id=None, created_at=None):
         self.term = term
         self.payed = payed
         super().__init__(
             borrowed_amount, interest_rate, self.__class__.__name__,
-            service_id, customer_id, created_at)
+            id, customer_id, created_at)
         logging.info("Loan initializer...")
         logging.debug("Data: " + str(self.data_dict))
 
@@ -143,13 +143,13 @@ class CreditCard(Service):
     """
 
     def __init__(self, borrowed_amount, interest_rate, customer_id,
-                 max_limit=4000, annual_fee=90, service_id=None,
+                 max_limit=4000, annual_fee=90, id=None,
                  created_at=None) -> None:
         self.max_limit = max_limit
         self.annual_fee = annual_fee
         super().__init__(
             borrowed_amount, interest_rate, self.__class__.__name__,
-            service_id, customer_id, created_at)
+            id, customer_id, created_at)
         logging.info("Credit card initializer...")
         logging.debug("Data: " + str(self.data_dict))
 
