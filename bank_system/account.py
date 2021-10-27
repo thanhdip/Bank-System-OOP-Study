@@ -13,7 +13,7 @@ class Account:
         created_at: Time created at as datetime.datetime.
     """
 
-    def __init__(self, account_type, balance, customer_id, account_id=None,
+    def __init__(self, account_type, balance, customer_id, id=None,
                  created_at=None):
         """Initialize account
 
@@ -25,7 +25,7 @@ class Account:
             to DB as datetime.datetime.
         """
         self._account_type = account_type
-        self._account_id = account_id
+        self._account_id = id
         self._customer_id = customer_id
         self._balance = balance
         self._created_at = created_at
@@ -120,11 +120,11 @@ class Savings(Account):
     """
 
     def __init__(
-            self, balance, customer_id, savings_rate=.01, account_id=None,
+            self, balance, customer_id, savings_rate=.01, id=None,
             created_at=None):
         self.savings_rate = savings_rate
         super().__init__(
-            self.__class__.__name__, balance, account_id=account_id,
+            self.__class__.__name__, balance, id=id,
             customer_id=customer_id, created_at=created_at)
         logging.info("Savings initializer...")
         logging.debug("Data: " + str(self.data_dict))
@@ -154,11 +154,11 @@ class Checking(Account):
         min_balance: Minimum allowed balance as int.
     """
 
-    def __init__(self,  balance,  min_balance, customer_id, account_id=None,
+    def __init__(self,  balance,  min_balance, customer_id, id=None,
                  created_at=None):
         self.min_balance = min_balance
         super().__init__(
-            self.__class__.__name__, balance, account_id=account_id,
+            self.__class__.__name__, balance, id=id,
             customer_id=customer_id, created_at=created_at)
         logging.info("Checking initializer...")
         logging.debug("Data: " + str(self.data_dict))

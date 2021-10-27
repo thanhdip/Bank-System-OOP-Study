@@ -1,5 +1,6 @@
 import re
 from account import Account
+from bank_system.account import OverdraftError
 from service import CreditLimitError, OverpayedError
 from person import Person
 from service import Service
@@ -154,26 +155,19 @@ a_create_parser.add_argument(
     'type',  type=str, help="Type of Account",
     choices=["checking", "savings"])
 a_create_parser.add_argument('ba', type=float, help="balance")
-a_create_parser.add_argument('cid', type=int, help="customer id")
 a_create_parser.add_argument(
-    'min', type=int, help="minimum blance for checkings.")
+    '-min', type=int, help="minimum blance for checkings.")
 
 # Find subcommand
 a_find_parser = account_subparser.add_parser(
     'find', help='find account of customer'
 )
-a_find_parser.add_argument(
-    'type',  type=str, help="Type of Account",
-    choices=["checking", "savings"])
 a_find_parser.add_argument('cid', type=int, help="Customer ID")
 
 # Delete subcommand
 a_delete_parser = account_subparser.add_parser(
     'delete', help='delete account of customer'
 )
-a_delete_parser.add_argument(
-    'type',  type=str, help="Type of Account",
-    choices=["checking", "savings"])
 a_delete_parser.add_argument('cid', type=int, help="Customer ID")
 
 # Update subcommand
@@ -183,8 +177,13 @@ a_update_parser = account_subparser.add_parser(
 a_update_parser.add_argument(
     'type',  type=str, help="Type of Account",
     choices=["checking", "savings"])
+a_update_parser.add_argument('id', type=float, help="Account ID.")
 a_update_parser.add_argument('-dep', type=float, help="Deposit to account.")
 a_update_parser.add_argument('-wit', type=float, help="Withdraw from account.")
+a_update_parser.add_argument(
+    '-sav', type=float, help="Savings rate for account.")
+a_update_parser.add_argument(
+    '-min', type=int, help="Min balance for account.")
 
 
 class BankSystemShell(cmd2.Cmd):
@@ -413,7 +412,9 @@ class BankSystemShell(cmd2.Cmd):
                 loan.term = args.te
             if args.pay is not None:
                 try:
-                    loan.pay(args.pay)
+                    total = loan.pay(args.pay)
+                    self.poutput(f"Paying {args.pay}")
+                    self.poutput(f"Loan Left: {total}")
                 except OverpayedError:
                     self.poutput("Overpaying, try again and pay less!")
             self._main_db.save_data(type(loan).__name__, loan.data_dict)
@@ -480,16 +481,69 @@ class BankSystemShell(cmd2.Cmd):
 
     # Accounts
     def account_find(self, args):
-        pass
+        res = self._main_db.get_accounts(args.cid)
+        if res == []:
+            self.poutput("Nothing found. Try with -h for help.")
+        else:
+            for acc in res:
+                self.poutput(pprint.pformat(acc))
 
     def account_create(self, args):
-        pass
+        if self._customer_obj is None:
+            self.poutput(
+                ("Please load a customer to add service."
+                 "\n'customer update -l [ID]'"))
+        else:
+            if args.type == "checking":
+                if args.min is None:
+                    self.poutput(
+                        "Enter a minimum balance for checking accounts.")
+                    return
+                acco = Checking(args.ba, args.min,
+                                self._customer_obj.customer_id)
+            else:
+                acco = Savings(args.ba, self._customer_obj.customer_id)
+            res = self._main_db.save_data(
+                type(acco).__name__, acco.data_dict)
+            self.poutput("Account ID: " + str(res[0]))
+            self.poutput(
+                f"Added to customer {self._customer_obj._customer_id}")
 
     def account_update(self, args):
-        pass
+        res = self._main_db.get_accounts(aco_ser_id=args.id)
+        if res == []:
+            self.poutput("Account not found. Try searching first.")
+        else:
+            resL = res[0]
+            del resL["account_type"]
+            if res[0]["account_type"] == "Checking":
+                del resL["savings_rate"]
+                acc = Checking(**resL)
+                if args.min is not None:
+                    acc.min_balance = args.min
+            else:
+                del resL["min_balance"]
+                acc = Savings(**resL)
+                if args.sav is not None:
+                    acc.savings_rate = args.sav
+            if args.dep is not None:
+                bal = acc.deposit(args.dep)
+                self.poutput(f"Deposited: {args.dep}")
+                self.poutput(f"Balance: {bal}")
+            if args.wit is not None:
+                try:
+                    bal = acc.withdraw(args.wit)
+                    self.poutput(f"Withdrew: {args.wit}")
+                    self.poutput(f"Balance: {bal}")
+                except OverdraftError:
+                    self.poutput(
+                        "Over withdrawing. Withdraw less or deposit more.")
 
     def account_delete(self, args):
-        pass
+        self.poutput(args.cid)
+        # Delete works with both
+        self._main_db.delete_data(Checking.__name__, args.cid)
+        self.poutput(f"Deleting {args.cid} if exists.")
 
     a_find_parser.set_defaults(func=account_find)
     a_create_parser.set_defaults(func=account_create)
