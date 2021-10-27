@@ -1,6 +1,6 @@
 import re
 from account import Account
-from bank_system.account import OverdraftError
+from account import OverdraftError
 from service import CreditLimitError, OverpayedError
 from person import Person
 from service import Service
