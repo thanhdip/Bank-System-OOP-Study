@@ -213,7 +213,7 @@ class BankSystemShell(cmd2.Cmd):
         del cmd2.Cmd.do_shortcuts
         del cmd2.Cmd.do_shell
         del cmd2.Cmd.do_macro
-        # del cmd2.Cmd.do_set
+        del cmd2.Cmd.do_set
 
     doc_header = 'All Bank Commands'
     prompt = "[Admin] > "
