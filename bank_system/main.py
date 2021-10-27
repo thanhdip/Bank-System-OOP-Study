@@ -97,6 +97,98 @@ c_delete_parser = customer_subparser.add_parser(
 c_delete_parser.add_argument('id',  type=int, help="id as integer")
 
 # SERVICES
+service_parser = cmd2.Cmd2ArgumentParser()
+service_subparser = service_parser.add_subparsers(
+    title="Available Service Commands",
+    help="use these commands to admin customer's services."
+)
+
+# Create subcommand
+s_create_parser = service_subparser.add_parser(
+    'create', help='create service for customer.')
+s_create_parser.add_argument(
+    'type',  type=str, help="Type of service",
+    choices=["loan", "credit"])
+s_create_parser.add_argument('ba', type=float, help="borrowed amount")
+s_create_parser.add_argument('in', type=float, help="interest rate")
+s_create_parser.add_argument('cid', type=int, help="customer id")
+
+# Find subcommand
+s_find_parser = service_subparser.add_parser(
+    'find', help='find services of customers.')
+s_find_parser.add_argument(
+    'type',  type=str, help="Type of service",
+    choices=["loan", "credit"])
+s_find_parser.add_argument('cid', type=int, help="Customer ID")
+
+# Delete subcommand
+s_delete_parser = service_subparser.add_parser(
+    'delete', help='delete services of customers.')
+s_delete_parser.add_argument(
+    'type',  type=str, help="Type of service",
+    choices=["loan", "credit"])
+s_delete_parser.add_argument('id', type=int, help="Service ID")
+
+# Update subcommand
+sl_update_parser = service_subparser.add_parser(
+    'update_loan', help='update loans of a customer.')
+sl_update_parser.add_argument('-int', type=float, help="interest rate")
+sl_update_parser.add_argument('-te', type=float, help="term")
+sl_update_parser.add_argument('-pay', type=float, help="pay()")
+
+sc_update_parser = service_subparser.add_parser(
+    'update_credit', help='update credit cards of a customer.')
+sc_update_parser.add_argument('-int', type=float, help="interest rate")
+sc_update_parser.add_argument('-max', type=int, help="credit max limit.")
+sc_update_parser.add_argument('-fee', type=int, help="annual fee")
+sc_update_parser.add_argument('-pay', type=float, help="pay()")
+sc_update_parser.add_argument('-borrow', type=float, help="borrow()")
+
+# ACCOUNTS
+account_parser = cmd2.Cmd2ArgumentParser()
+account_subparser = account_parser.add_subparsers(
+    title="Available Account Commands",
+    help="use these commands to admin customer's accounts."
+)
+
+# Create subcommand
+a_create_parser = account_subparser.add_parser(
+    'create', help='create account of customer.')
+a_create_parser.add_argument(
+    'type',  type=str, help="Type of Account",
+    choices=["checking", "savings"])
+a_create_parser.add_argument('ba', type=float, help="balance")
+a_create_parser.add_argument('cid', type=int, help="customer id")
+a_create_parser.add_argument(
+    'min', type=int, help="minimum blance for checkings.")
+
+# Find subcommand
+a_find_parser = account_subparser.add_parser(
+    'find', help='find account of customer'
+)
+a_find_parser.add_argument(
+    'type',  type=str, help="Type of Account",
+    choices=["checking", "savings"])
+a_find_parser.add_argument('cid', type=int, help="Customer ID")
+
+# Delete subcommand
+a_delete_parser = account_subparser.add_parser(
+    'delete', help='find account of customer'
+)
+a_delete_parser.add_argument(
+    'type',  type=str, help="Type of Account",
+    choices=["checking", "savings"])
+a_delete_parser.add_argument('cid', type=int, help="Customer ID")
+
+# Update subcommand
+a_update_parser = account_subparser.add_parser(
+    'update', help='find account of customer'
+)
+a_update_parser.add_argument(
+    'type',  type=str, help="Type of Account",
+    choices=["checking", "savings"])
+a_update_parser.add_argument('-dep', type=float, help="Deposit to account.")
+a_update_parser.add_argument('-wit', type=float, help="Withdraw from account.")
 
 
 class BankSystemShell(cmd2.Cmd):
@@ -202,7 +294,7 @@ class BankSystemShell(cmd2.Cmd):
     e_update_parser.set_defaults(func=employee_update)
     e_delete_parser.set_defaults(func=employee_update)
 
-    @cmd2.with_argparser(employee_parser)
+    @ cmd2.with_argparser(employee_parser)
     def do_employee(self, args):
         "Adminitrate Employees. Create, Update, Delete, Find."
         func = getattr(args, 'func', None)
@@ -283,6 +375,16 @@ class BankSystemShell(cmd2.Cmd):
         else:
             self.do_help('customer')
 
+    # Services
+    @ cmd2.with_argparser(service_parser)
+    def do_service(self, args):
+        "Administrate Customer's services. Add, Update, Delete, Find."
+        func = getattr(args, 'func', None)
+        if func is not None:
+            func(self, args)
+        else:
+            self.do_help('customer')
+
     @ staticmethod
     def print_choices(choice_list):
         for i, choice in enumerate(choice_list):
@@ -291,19 +393,8 @@ class BankSystemShell(cmd2.Cmd):
 
 def main():
     main_db = BankDatabase("main")
-    # print(main_db.find_employee())
     cli = BankSystemShell(main_db)
     sys.exit(cli.cmdloop())
-
-
-def admin_accounts():
-    account_choices = ["Add to customer", "Remove from customer",
-                       "Check Balance", "Withdraw", "Deposit"]
-
-
-def admin_services():
-    services_choices = ["Add to customer", "Remove from customer",
-                        "Check Details", "Deposit"]
 
 
 if __name__ == "__main__":
