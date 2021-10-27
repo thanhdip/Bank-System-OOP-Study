@@ -12,7 +12,6 @@ from account import Checking, Savings
 import cmd2
 import sys
 import pprint
-import argparse
 
 
 # EMPLOYEES
@@ -191,12 +190,6 @@ class BankSystemShell(cmd2.Cmd):
              "Welcome to the Bank System, Administrator.\n....\n...\n..\n"
              "Type help or ? to see available commands. "
              "Type \"help [command]\" to describe it.")
-
-    # TO DO
-    # Services Create - load customer create service, search,
-    # update - load customer, update service, delete
-    # Accounts Create - load customer create service, search,
-    # update - load customer, update service, delete
 
     def __init__(self, database):
         super().__init__()
