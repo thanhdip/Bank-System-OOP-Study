@@ -17,3 +17,4 @@ Any command can be ran with "-h". Hitting tab will autocomplete and give hints.
 Type quit to quit.
 
 Screenshot:
+![alt text](https://github.com/thanhdip/Bank-System-OOP-Study/blob/main/screenshots/bank_system_screenshot.png)
