@@ -173,9 +173,6 @@ a_delete_parser.add_argument('cid', type=int, help="Customer ID")
 a_update_parser = account_subparser.add_parser(
     'update', help='update account of customer'
 )
-a_update_parser.add_argument(
-    'type',  type=str, help="Type of Account",
-    choices=["checking", "savings"])
 a_update_parser.add_argument('id', type=float, help="Account ID.")
 a_update_parser.add_argument('-dep', type=float, help="Deposit to account.")
 a_update_parser.add_argument('-wit', type=float, help="Withdraw from account.")
@@ -206,7 +203,7 @@ class BankSystemShell(cmd2.Cmd):
         del cmd2.Cmd.do_shortcuts
         del cmd2.Cmd.do_shell
         del cmd2.Cmd.do_macro
-        del cmd2.Cmd.do_set
+        # del cmd2.Cmd.do_set
 
     doc_header = 'All Bank Commands'
     prompt = "[Admin] > "
@@ -446,6 +443,7 @@ class BankSystemShell(cmd2.Cmd):
                 except CreditLimitError:
                     self.poutput(
                         "Credit Limit Hit. Pay off more or borrow less.")
+                    return
             self._main_db.save_data(type(credit).__name__, credit.data_dict)
             self.poutput(
                 (f"Customer {credit.customer_id}"
@@ -508,13 +506,14 @@ class BankSystemShell(cmd2.Cmd):
             self.poutput("Account not found. Try searching first.")
         else:
             resL = res[0]
-            del resL["account_type"]
             if res[0]["account_type"] == "Checking":
+                del resL["account_type"]
                 del resL["savings_rate"]
                 acc = Checking(**resL)
                 if args.min is not None:
                     acc.min_balance = args.min
             else:
+                del resL["account_type"]
                 del resL["min_balance"]
                 acc = Savings(**resL)
                 if args.sav is not None:
@@ -531,6 +530,11 @@ class BankSystemShell(cmd2.Cmd):
                 except OverdraftError:
                     self.poutput(
                         "Over withdrawing. Withdraw less or deposit more.")
+                    return
+            self._main_db.save_data(
+                type(acc).__name__, acc.data_dict)
+            self.poutput(
+                "Data saved, account:\n" + pprint.pformat(acc.data_dict))
 
     def account_delete(self, args):
         self.poutput(args.cid)
